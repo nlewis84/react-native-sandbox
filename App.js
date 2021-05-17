@@ -1,21 +1,31 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+import React, { Component } from "react";
+import { Button, StyleSheet, View } from "react-native";
+import getStyleSheet from "./styles";
+export default class App extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            darkTheme: false,
+        };
+        this.toggleTheme = this.toggleTheme.bind(this);
+    }
+    toggleTheme() {
+        this.setState({ darkTheme: !this.state.darkTheme });
+    }
+    render() {
+        const styles = getStyleSheet(this.state.darkTheme);
+        const backgroundColor = StyleSheet.flatten(
+            styles.container
+        ).backgroundColor;
+        return (
+            <View style={styles.container}>
+                <View style={styles.box}>
+                    <Button
+                        title={backgroundColor}
+                        onPress={this.toggleTheme}
+                    />
+                </View>
+            </View>
+        );
+    }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
