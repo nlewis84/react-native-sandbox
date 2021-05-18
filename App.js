@@ -1,34 +1,96 @@
 import React, { Component } from "react";
-import { Image, Platform, Text, StyleSheet, View } from "react-native";
-export default class App extends Component<{}> {
-    render() {
-        return (
-            <View style={styles.container}>
-                <View style={styles.cardContainer}>
-                    <View style={styles.cardImageContainer}>
-                        <Image
-                            style={styles.cardImage}
-                            source={require("./lake.jpg")}
-                        />
-                    </View>
-                    <View>
-                        <Text style={styles.cardName}>John Doe</Text>
-                    </View>
-                    <View style={styles.cardOccupationContainer}>
-                        <Text style={styles.cardOccupation}>
-                            ReactNative Developer
-                        </Text>
-                    </View>
-                    <View>
-                        <Text style={styles.cardDescription}>
-                            John is a really great JavaScript developer. He
-                            loves using JS to build React Native applications
-                            for iOS and Android.
-                        </Text>
-                    </View>
+import PropTypes from "prop-types";
+import update from "immutability-helper";
+import {
+    Image,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableHighlight,
+    View,
+} from "react-native";
+const userImage = require("./lake.jpg");
+const data = [
+    {
+        image: userImage,
+        name: "John Doe",
+        occupation: "React Native Developer",
+        description:
+            "John is a really great Javascript developer. " +
+            "He loves using JS to build React Native applications " +
+            "for iOS and Android",
+        showThumbnail: true,
+    },
+];
+const ProfileCard = (props) => {
+    const { image, name, occupation, description, onPress, showThumbnail } =
+        props;
+    let containerStyles = [styles.cardContainer];
+    if (showThumbnail) {
+        containerStyles.push(styles.cardThumbnail);
+    }
+
+    return (
+        <TouchableHighlight onPress={onPress}>
+            <View style={[containerStyles]}>
+                <View style={styles.cardImageContainer}>
+                    <Image style={styles.cardImage} source={image} />
+                </View>
+                <View>
+                    <Text style={styles.cardName}>{name}</Text>
+                </View>
+                <View style={styles.cardOccupationContainer}>
+                    <Text style={styles.cardOccupation}>{occupation}</Text>
+                </View>
+                <View>
+                    <Text style={styles.cardDescription}>{description}</Text>
                 </View>
             </View>
-        );
+        </TouchableHighlight>
+    );
+};
+
+ProfileCard.propTypes = {
+    image: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    occupation: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    showThumbnail: PropTypes.bool.isRequired,
+    onPress: PropTypes.func.isRequired,
+};
+
+export default class App extends Component {
+    constructor() {
+        super();
+        this.state = {
+            data: data,
+        };
+    }
+    handleProfileCardPress = (index) => {
+        const showThumbnail = !this.state.data[index].showThumbnail;
+        this.setState({
+            data: update(this.state.data, {
+                [index]: { showThumbnail: { $set: showThumbnail } },
+            }),
+        });
+    };
+    render() {
+        const list = this.state.data.map(function (item, index) {
+            const { image, name, occupation, description, showThumbnail } =
+                item;
+            return (
+                <ProfileCard
+                    key={"card-" + index}
+                    image={image}
+                    name={name}
+                    occupation={occupation}
+                    description={description}
+                    onPress={this.handleProfileCardPress.bind(this, index)}
+                    showThumbnail={showThumbnail}
+                />
+            );
+        }, this);
+        return <View style={styles.container}>{list}</View>;
     }
 }
 
@@ -39,6 +101,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        transform: [{ scale: 0.8 }],
     },
     cardContainer: {
         alignItems: "center",
@@ -49,17 +112,10 @@ const styles = StyleSheet.create({
         backgroundColor: profileCardColor,
         width: 300,
         height: 400,
-        ...Platform.select({
-            ios: {
-                shadowColor: "black",
-                shadowOffset: { width: 0, height: 10 },
-                shadowOpacity: 0.6,
-                shadowRadius: 10,
-            },
-            android: {
-                elevation: 15,
-            },
-        }),
+        shadowColor: "black",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.6,
+        shadowRadius: 10,
     },
     cardImageContainer: {
         alignItems: "center",
@@ -71,17 +127,10 @@ const styles = StyleSheet.create({
         borderRadius: 60,
         marginTop: 30,
         paddingTop: 2,
-        ...Platform.select({
-            ios: {
-                shadowColor: "black",
-                shadowOffset: { width: 0, height: 10 },
-                shadowOpacity: 0.6,
-                shadowRadius: 10,
-            },
-            android: {
-                elevation: 15,
-            },
-        }),
+        shadowColor: "black",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.6,
+        shadowRadius: 10,
     },
     cardImage: {
         width: 110,
@@ -115,5 +164,8 @@ const styles = StyleSheet.create({
         marginLeft: 40,
         marginBottom: 10,
         fontStyle: "italic",
+    },
+    cardThumbnail: {
+        transform: [{ scale: 0.2 }],
     },
 });
