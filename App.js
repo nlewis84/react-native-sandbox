@@ -1,171 +1,49 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
-import update from "immutability-helper";
-import {
-    Image,
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableHighlight,
-    View,
-} from "react-native";
-const userImage = require("./lake.jpg");
-const data = [
-    {
-        image: userImage,
-        name: "John Doe",
-        occupation: "React Native Developer",
-        description:
-            "John is a really great Javascript developer. " +
-            "He loves using JS to build React Native applications " +
-            "for iOS and Android",
-        showThumbnail: true,
-    },
-];
-const ProfileCard = (props) => {
-    const { image, name, occupation, description, onPress, showThumbnail } =
-        props;
-    let containerStyles = [styles.cardContainer];
-    if (showThumbnail) {
-        containerStyles.push(styles.cardThumbnail);
-    }
-
-    return (
-        <TouchableHighlight onPress={onPress}>
-            <View style={[containerStyles]}>
-                <View style={styles.cardImageContainer}>
-                    <Image style={styles.cardImage} source={image} />
-                </View>
-                <View>
-                    <Text style={styles.cardName}>{name}</Text>
-                </View>
-                <View style={styles.cardOccupationContainer}>
-                    <Text style={styles.cardOccupation}>{occupation}</Text>
-                </View>
-                <View>
-                    <Text style={styles.cardDescription}>{description}</Text>
-                </View>
-            </View>
-        </TouchableHighlight>
-    );
-};
-
-ProfileCard.propTypes = {
-    image: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    occupation: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-    showThumbnail: PropTypes.bool.isRequired,
-    onPress: PropTypes.func.isRequired,
-};
-
-export default class App extends Component {
+import { StyleSheet, View, Animated } from "react-native";
+export default class RNAnimations extends Component {
     constructor() {
         super();
-        this.state = {
-            data: data,
-        };
-    }
-    handleProfileCardPress = (index) => {
-        const showThumbnail = !this.state.data[index].showThumbnail;
-        this.setState({
-            data: update(this.state.data, {
-                [index]: { showThumbnail: { $set: showThumbnail } },
-            }),
+        this.animatedValues = [];
+        for (let i = 0; i < 1000; i++) {
+            this.animatedValues[i] = new Animated.Value(0);
+        }
+        this.animations = this.animatedValues.map((value) => {
+            return Animated.timing(value, {
+                toValue: 1,
+                duration: 6000,
+            });
         });
+    }
+    componentDidMount() {
+        this.animate();
+    }
+    animate = () => {
+        Animated.stagger(15, this.animations).start();
     };
     render() {
-        const list = this.state.data.map(function (item, index) {
-            const { image, name, occupation, description, showThumbnail } =
-                item;
-            return (
-                <ProfileCard
-                    key={"card-" + index}
-                    image={image}
-                    name={name}
-                    occupation={occupation}
-                    description={description}
-                    onPress={this.handleProfileCardPress.bind(this, index)}
-                    showThumbnail={showThumbnail}
-                />
-            );
-        }, this);
-        return <View style={styles.container}>{list}</View>;
+        return (
+            <View style={styles.container}>
+                {this.animatedValues.map((value, index) => (
+                    <Animated.View
+                        key={index}
+                        style={[{ opacity: value }, styles.box]}
+                    />
+                ))}
+            </View>
+        );
     }
 }
-
-const profileCardColor = "dodgerblue";
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: "center",
-        alignItems: "center",
-        transform: [{ scale: 0.8 }],
+        flexDirection: "row",
+        flexWrap: "wrap",
     },
-    cardContainer: {
-        alignItems: "center",
-        borderColor: "black",
-        borderWidth: 3,
-        borderStyle: "solid",
-        borderRadius: 20,
-        backgroundColor: profileCardColor,
-        width: 300,
-        height: 400,
-        shadowColor: "black",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.6,
-        shadowRadius: 10,
-    },
-    cardImageContainer: {
-        alignItems: "center",
-        backgroundColor: "white",
-        borderWidth: 3,
-        borderColor: "black",
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        marginTop: 30,
-        paddingTop: 2,
-        shadowColor: "black",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.6,
-        shadowRadius: 10,
-    },
-    cardImage: {
-        width: 110,
-        height: 110,
-        borderRadius: 55,
-    },
-    cardName: {
-        color: "white",
-        fontSize: 24,
-        marginTop: 30,
-        fontWeight: 700,
-        textShadowColor: "black",
-        textShadowOffset: {
-            height: 2,
-            width: 2,
-        },
-        textShadowRadius: 3,
-    },
-    cardOccupationContainer: {
-        borderColor: "black",
-        borderBottomWidth: 3,
-    },
-    cardOccupation: {
-        marginTop: 10,
-        marginBottom: 10,
-        fontWeight: 700,
-    },
-    cardDescription: {
-        marginTop: 10,
-        marginRight: 40,
-        marginLeft: 40,
-        marginBottom: 10,
-        fontStyle: "italic",
-    },
-    cardThumbnail: {
-        transform: [{ scale: 0.2 }],
+    box: {
+        width: 15,
+        height: 15,
+        margin: 0.5,
+        backgroundColor: "red",
     },
 });
